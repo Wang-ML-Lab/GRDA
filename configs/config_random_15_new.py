@@ -40,8 +40,7 @@ print("model: {}".format(opt.model))
 opt.use_visdom = False
 opt.visdom_port = 2000
 
-opt.use_g_encode = True  # False  # True
-# opt.use_g_encode = False
+opt.use_g_encode = False # False  # True
 if opt.use_g_encode:
     opt.g_encode = read_pickle("derive_g_encode/g_encode.pkl")
 
