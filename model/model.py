@@ -82,10 +82,12 @@ class BaseModel(nn.Module):
         mask_list[opt.src_domain] = 1
         self.domain_mask = torch.IntTensor(mask_list).to(
             opt.device
-        )  # not sure if device is needed
+        )
 
     def learn(self, epoch, dataloader):
         self.train()
+        if self.use_g_encode:
+            self.netG.eval()
         self.epoch = epoch
         loss_values = {loss: 0 for loss in self.loss_names}
 
@@ -202,41 +204,28 @@ class BaseModel(nn.Module):
             one_hot_seq: Number of domain x Batch size x Number of vertices (domains)
             domain_seq: Number of domain x Batch size x domain dim (1)
         """
+        # the domain seq is in d3!!
+        x_seq, y_seq, domain_seq = (
+            [d[0][None, :, :] for d in data],
+            [d[1][None, :] for d in data],
+            [d[2][None, :] for d in data],
+        )
+        self.x_seq = torch.cat(x_seq, 0).to(self.device)
+        self.y_seq = torch.cat(y_seq, 0).to(self.device)
+        self.domain_seq = torch.cat(domain_seq, 0).to(self.device)
+        self.tmp_batch_size = self.x_seq.shape[1]
+        one_hot_seq = [
+            torch.nn.functional.one_hot(d[2], self.num_domain)
+            for d in data
+        ]
+
         if train:
-            # the domain seq is in d3!!
-            x_seq, y_seq, domain_seq = (
-                [d[0][None, :, :] for d in data],
-                [d[1][None, :] for d in data],
-                [d[2][None, :] for d in data],
-            )
-            self.x_seq = torch.cat(x_seq, 0).to(self.device)
-            self.y_seq = torch.cat(y_seq, 0).to(self.device)
-            self.domain_seq = torch.cat(domain_seq, 0).to(self.device)
-            self.tmp_batch_size = self.x_seq.shape[1]
-            one_hot_seq = [
-                torch.nn.functional.one_hot(d[2], self.num_domain)
-                for d in data
-            ]
             self.one_hot_seq = (
                 torch.cat(one_hot_seq, 0)
                 .reshape(self.num_domain, self.tmp_batch_size, -1)
                 .to(self.device)
             )
-
         else:
-            x_seq, y_seq, domain_seq = (
-                [d[0][None, :, :] for d in data],
-                [d[1][None, :] for d in data],
-                [d[2][None, :] for d in data],
-            )
-            self.x_seq = torch.cat(x_seq, 0).to(self.device)
-            self.y_seq = torch.cat(y_seq, 0).to(self.device)
-            self.domain_seq = torch.cat(domain_seq, 0).to(self.device)
-            self.tmp_batch_size = self.x_seq.shape[1]
-            one_hot_seq = [
-                torch.nn.functional.one_hot(d[2], self.num_domain)
-                for d in data
-            ]
             self.one_hot_seq = (
                 torch.cat(one_hot_seq, 0)
                 .reshape(self.test_dmn_num, self.tmp_batch_size, -1)
@@ -244,14 +233,15 @@ class BaseModel(nn.Module):
             )
 
     def __train_forward__(self):
-        self.z_seq = self.netG(self.one_hot_seq)
-        self.e_seq = self.netE(self.x_seq, self.z_seq)  # encoder of the data
-        self.f_seq = self.netF(self.e_seq)  # prediction
+        # self.z_seq = self.netG(self.one_hot_seq)
+        # self.e_seq = self.netE(self.x_seq, self.z_seq)  # encoder of the data
+        # self.f_seq = self.netF(self.e_seq)  # prediction
 
-        if self.opt.lambda_gan != 0:
-            self.d_seq = self.netD(self.e_seq)
-            # this is the d loss, still not backward yet
-            self.loss_D = self.__loss_D__(self.d_seq)
+        # if self.opt.lambda_gan != 0:
+        #     self.d_seq = self.netD(self.e_seq.detach())
+        #     # this is the d loss, still not backward yet
+        #     self.loss_D = self.__loss_D__(self.d_seq)
+        pass
 
     def __test_forward__(self):
         self.z_seq = self.netG(self.one_hot_seq)
@@ -271,6 +261,7 @@ class BaseModel(nn.Module):
             loss_value["D"] = 0
 
         loss_value["E_pred"], loss_value["E_gan"] = self.__optimize_EF__()
+        # loss_value['D'], loss_value['E_pred'], loss_value['E_gan'] = self.__optimize_DEF__()
 
         if self.opt.wgan:
             clamp_range = 2.0
@@ -280,8 +271,6 @@ class BaseModel(nn.Module):
         return loss_value
 
     def __optimize_G__(self):
-        self.netG.train()
-        self.netD.eval(), self.netE.eval(), self.netF.eval()
         self.optimizer_G.zero_grad()
 
         criterion = nn.BCEWithLogitsLoss()
@@ -687,9 +676,6 @@ class ADDA(BaseModel):
         return self.loss_D.item()
 
     def __optimize_EF__(self):
-        self.netD.eval(), self.netG.eval()
-        self.netE.train(), self.netF.train()
-
         self.optimizer_EF.zero_grad()
         self.d_seq = self.netD(self.e_seq)
         self.d_seq_target = self.d_seq[self.domain_mask == 0]
