@@ -244,35 +244,35 @@ class BaseModel(nn.Module):
         )  # class of the prediction
 
     def __optimize__(self):
-        pass
-    # def __optimize__(self):
-    #     loss_value = dict()
-    #     # if not self.use_g_encode:
-    #     #     loss_value["G"] = self.__optimize_G__()
-    #     loss_value["G"], loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = self.__optimize_GDEF__()
-    #     return loss_value
+        loss_value = dict()
+        if not self.use_g_encode:
+            self.loss_G = self.__loss_G__()
+        
+        if self.opt.lambda_gan != 0:
+            self.loss_D = self.__loss_D__()
 
-    # def __optimize__(self):
-    #     loss_value = dict()
-    #     if not self.use_g_encode:
-    #         loss_value["G"] = self.__optimize_G__()
-    #     # if self.opt.lambda_gan != 0:
-    #     #     loss_value["D"] = self.__optimize_D__()
-    #     # else:
-    #     #     loss_value["D"] = 0
+        self.loss_E, self.loss_E_pred, self.loss_E_gan = self.__loss_EF__()
 
-    #     loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = self.__optimize_DEF__()
+        if not self.use_g_encode:
+            self.optimizer_G.zero_grad()
+        self.loss_G.backward(retain_graph=True)
+        self.optimizer_D.zero_grad()
+        self.loss_D.backward(retain_graph=True)
+        self.optimizer_EF.zero_grad()
+        self.loss_E.backward()
 
-    #     if self.opt.wgan:
-    #         clamp_range = 2.0
-    #         for p in self.netD.parameters():
-    #             p.data.clamp_(-clamp_range, clamp_range)
+        if not self.use_g_encode:
+            self.optimizer_G.step()
+        self.optimizer_D.step()
+        self.optimizer_EF.step()
 
-    #     return loss_value
+        if not self.use_g_encode:
+            loss_value["G"] = self.loss_G.item()
+        loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = \
+            self.loss_D.item(), self.loss_E_pred.item(), self.loss_E_gan.item()
+        return loss_value
 
     def __loss_G__(self):
-        # self.optimizer_G.zero_grad()
-
         criterion = nn.BCEWithLogitsLoss()
 
         sub_graph = self.__sub_graph__(my_sample_v=self.opt.sample_v_g)
@@ -291,18 +291,13 @@ class BaseModel(nn.Module):
                 errorG += criterion(output, label)
 
         errorG /= sample_v * (sample_v - 1) / 2
-
-        # errorG.backward(retain_graph=True)
-
-        # self.optimizer_G.step()
-        # return errorG.item()
         return errorG
 
-    # def __optimize_D__(self):
-    #     pass
+    def __loss_D__(self):
+        pass
 
-    # def __optimize_GDEF__(self):
-    #     pass
+    def __loss_EF__(self):
+        pass
 
     def __log_write__(self, loss_msg):
         print(loss_msg)
@@ -450,50 +445,23 @@ class DANN(BaseModel):
         self.f_seq = self.netF(self.e_seq)
         self.d_seq = self.netD(self.e_seq)
 
-    # def __optimize_D__(self):
-    #     self.optimizer_D.zero_grad()
-    #     self.d_seq = self.netD(self.e_seq.detach())
-    #     self.loss_D = F.nll_loss(flat(self.d_seq), flat(self.domain_seq))
-    #     self.loss_D.backward(retain_graph=True)
+    def __loss_D__(self):
+        return F.nll_loss(flat(self.d_seq), flat(self.domain_seq))
 
-    #     self.optimizer_D.step()
-    #     return self.loss_D.item()
+    def __loss_EF__(self):
+        # we have already calculate D loss before EF loss. Directly use it.
+        loss_E_gan = - self.loss_D
 
-    def __optimize__(self):
-        loss_value = dict()
-        if not self.use_g_encode:
-            self.loss_G = self.__loss_G__()
+        y_seq_source = self.y_seq[self.domain_mask == 1]
+        f_seq_source = self.f_seq[self.domain_mask == 1]
 
-        self.loss_D = F.nll_loss(flat(self.d_seq), flat(self.domain_seq))
-        self.loss_E_gan = - self.loss_D
-
-        self.y_seq_source = self.y_seq[self.domain_mask == 1]
-        self.f_seq_source = self.f_seq[self.domain_mask == 1]
-
-        self.loss_E_pred = F.nll_loss(
-            flat(self.f_seq_source), flat(self.y_seq_source)
+        loss_E_pred = F.nll_loss(
+            flat(f_seq_source), flat(y_seq_source)
         )
 
-        self.loss_E = self.loss_E_gan * self.lambda_gan + self.loss_E_pred
-        
-        if not self.use_g_encode:
-            self.optimizer_G.zero_grad()
-        self.loss_G.backward(retain_graph=True)
-        self.optimizer_D.zero_grad()
-        self.loss_D.backward(retain_graph=True)
-        self.optimizer_EF.zero_grad()
-        self.loss_E.backward()
+        loss_E = loss_E_gan * self.lambda_gan + loss_E_pred
 
-        if not self.use_g_encode:
-            self.optimizer_G.step()
-        self.optimizer_D.step()
-        self.optimizer_EF.step()
-
-        if not self.use_g_encode:
-            loss_value["G"] = self.loss_G.item()
-        loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = \
-            self.loss_D.item(), self.loss_E_pred.item(), self.loss_E_gan.item()
-        return loss_value
+        return loss_E, loss_E_pred, loss_E_gan
 
 
 class CDANN(BaseModel):
@@ -553,34 +521,24 @@ class CDANN(BaseModel):
         self.f_seq = self.netF(self.e_seq)
         self.f_seq_sig = torch.sigmoid(self.f_seq.detach())
 
-    # def __optimize_D__(self):
-    #     self.optimizer_D.zero_grad()
+    def __loss_D__(self):
+        d_seq = self.netD(self.e_seq.detach(), self.f_seq_sig.detach())
+        return F.nll_loss(flat(d_seq), flat(self.domain_seq))
 
-    #     self.d_seq = self.netD(self.e_seq.detach(), self.f_seq_sig.detach())
-    #     self.loss_D = F.nll_loss(flat(self.d_seq), flat(self.domain_seq))
-    #     self.loss_D.backward()
+    def __loss_EF__(self):
+        d_seq = self.netD(self.e_seq, self.f_seq_sig.detach())
 
-    #     self.optimizer_D.step()
-    #     return self.loss_D.item()
+        loss_E_gan = -F.nll_loss(flat(d_seq), flat(self.domain_seq))
 
-    def __optimize_EF__(self):
-        self.optimizer_EF.zero_grad()
-        self.d_seq = self.netD(self.e_seq, self.f_seq_sig.detach())
+        y_seq_source = self.y_seq[self.domain_mask == 1]
+        f_seq_source = self.f_seq[self.domain_mask == 1]
 
-        self.loss_E_gan = -F.nll_loss(flat(self.d_seq), flat(self.domain_seq))
-
-        self.y_seq_source = self.y_seq[self.domain_mask == 1]
-        self.f_seq_source = self.f_seq[self.domain_mask == 1]
-
-        self.loss_E_pred = F.nll_loss(
-            flat(self.f_seq_source), flat(self.y_seq_source)
+        loss_E_pred = F.nll_loss(
+            flat(f_seq_source), flat(y_seq_source)
         )
 
-        self.loss_E = self.loss_E_gan * self.lambda_gan + self.loss_E_pred
-        self.loss_E.backward()
-        self.optimizer_EF.step()
-
-        return self.loss_E_pred.item(), self.loss_E_gan.item()
+        loss_E = loss_E_gan * self.lambda_gan + loss_E_pred
+        return loss_E, loss_E_pred, loss_E_gan
 
 
 class ADDA(BaseModel):
@@ -632,43 +590,31 @@ class ADDA(BaseModel):
         self.e_seq = self.netE(self.x_seq, self.z_seq)  # encoder of the data
         self.f_seq = self.netF(self.e_seq)
 
-    def __optimize_D__(self):
-        self.netD.train()
-        self.netG.eval(), self.netE.eval(), self.netF.eval(),
-
-        self.optimizer_D.zero_grad()
-
-        self.d_seq = self.netD(self.e_seq.detach())
-        self.d_seq_source = self.d_seq[self.domain_mask == 1]
-        self.d_seq_target = self.d_seq[self.domain_mask == 0]
+    def __loss_D__(self):
+        d_seq = self.netD(self.e_seq.detach())
+        d_seq_source = d_seq[self.domain_mask == 1]
+        d_seq_target = d_seq[self.domain_mask == 0]
         # D: discriminator loss from classifying source v.s. target
-        self.loss_D = (
-            -torch.log(self.d_seq_source + 1e-10).mean()
-            - torch.log(1 - self.d_seq_target + 1e-10).mean()
+        loss_D = (
+            -torch.log(d_seq_source + 1e-10).mean()
+            - torch.log(1 - d_seq_target + 1e-10).mean()
         )
-        self.loss_D.backward()
+        return loss_D
 
-        self.optimizer_D.step()
-        return self.loss_D.item()
-
-    def __optimize_EF__(self):
-        self.optimizer_EF.zero_grad()
-        self.d_seq = self.netD(self.e_seq)
-        self.d_seq_target = self.d_seq[self.domain_mask == 0]
-        self.loss_E_gan = -torch.log(self.d_seq_target + 1e-10).mean()
+    def __loss_EF__(self):
+        d_seq = self.netD(self.e_seq)
+        d_seq_target = d_seq[self.domain_mask == 0]
+        loss_E_gan = -torch.log(d_seq_target + 1e-10).mean()
         # E_pred: encoder loss from prediction the label
-        self.y_seq_source = self.y_seq[self.domain_mask == 1]
-        self.f_seq_source = self.f_seq[self.domain_mask == 1]
-        self.loss_E_pred = F.nll_loss(
-            flat(self.f_seq_source), flat(self.y_seq_source)
+        y_seq_source = self.y_seq[self.domain_mask == 1]
+        f_seq_source = self.f_seq[self.domain_mask == 1]
+        loss_E_pred = F.nll_loss(
+            flat(f_seq_source), flat(y_seq_source)
         )
 
-        self.loss_E = self.loss_E_gan * self.opt.lambda_gan + self.loss_E_pred
+        loss_E = loss_E_gan * self.opt.lambda_gan + loss_E_pred
 
-        self.loss_E.backward()
-        self.optimizer_EF.step()
-
-        return self.loss_E_pred.item(), self.loss_E_gan.item()
+        return loss_E, loss_E_pred, loss_E_gan
 
 
 class MDD(BaseModel):
@@ -732,83 +678,102 @@ class MDD(BaseModel):
     def __optimize__(self):
         loss_value = dict()
         if not self.use_g_encode:
-            loss_value["G"] = self.__optimize_G__()
-        if self.opt.lambda_gan != 0:
-            (
-                loss_value["ADV_src"],
-                loss_value["ADV_tgt"],
-            ) = self.__optimize_D__()
-        else:
-            loss_value["ADV_src"], loss_value["ADV_tgt"] = 0
-        (
-            loss_value["E_pred"],
-            loss_value["E_adv"],
-        ) = self.__optimize_EF__()
+            self.loss_G = self.__loss_G__()
+        
+        self.loss_D, self.loss_ADV_src, self.loss_ADV_tgt = self.__loss_D__()
+        self.loss_E, self.loss_E_pred, self.loss_E_adv = self.__loss_EF__()
+
+        if not self.use_g_encode:
+            self.optimizer_G.zero_grad()
+        self.loss_G.backward(retain_graph=True)
+        self.optimizer_D.zero_grad()
+        self.loss_D.backward(retain_graph=True)
+        self.optimizer_EF.zero_grad()
+        self.loss_E.backward()
+
+        if not self.use_g_encode:
+            self.optimizer_G.step()
+        self.optimizer_D.step()
+        self.optimizer_EF.step()
+
+        if not self.use_g_encode:
+            loss_value["G"] = self.loss_G.item()
+        loss_value["ADV_src"], loss_value["ADV_tgt"], loss_value["E_pred"], loss_value["E_adv"] = \
+            self.loss_ADV_src.item(), self.loss_ADV_tgt.item(), self.loss_E_pred.item(), self.loss_E_adv.item()
         return loss_value
 
-    def __optimize_D__(self):
-        self.optimizer_D.zero_grad()
+
+        # loss_value = dict()
+        # if not self.use_g_encode:
+        #     loss_value["G"] = self.__optimize_G__()
+        # # if self.opt.lambda_gan != 0:
+        # #     (
+        # #         loss_value["ADV_src"],
+        # #         loss_value["ADV_tgt"],
+        # #     ) = self.__optimize_D__()
+        # # else:
+        # #     loss_value["ADV_src"], loss_value["ADV_tgt"] = 0
+        # # (
+        #     loss_value["E_pred"],
+        #     loss_value["E_adv"],
+        # ) = self.__optimize_EF__()
+        # return loss_value
+
+    def __loss_D__(self):
+        # self.optimizer_D.zero_grad()
 
         # # backward process:
         # self.loss_D.backward(retain_graph=True)
         # return self.loss_D.item()
-        self.f_adv, self.f_adv_softmax = self.netD(
+        f_adv, f_adv_softmax = self.netD(
             self.e_seq.detach(), return_softmax=True
         )
         # agreement with netF on source domain
-        self.loss_ADV_src = F.nll_loss(
-            flat(self.f_adv[self.domain_mask == 1]),
+        loss_ADV_src = F.nll_loss(
+            flat(f_adv[self.domain_mask == 1]),
             flat(self.g_seq[self.domain_mask == 1]),
         )
         f_adv_tgt = torch.log(
-            1 - self.f_adv_softmax[self.domain_mask == 0] + 1e-10
+            1 - f_adv_softmax[self.domain_mask == 0] + 1e-10
         )
         # disagreement with netF on target domain
-        self.loss_ADV_tgt = F.nll_loss(
+        loss_ADV_tgt = F.nll_loss(
             flat(f_adv_tgt), flat(self.g_seq[self.domain_mask == 0])
         )
         # minimize the agreement on source domain while maximize the disagreement on target domain
-        self.loss_D = (
-            self.loss_ADV_src * self.lambda_src
-            + self.loss_ADV_tgt * self.lambda_tgt
+        loss_D = (
+            loss_ADV_src * self.lambda_src
+            + loss_ADV_tgt * self.lambda_tgt
         ) / (self.lambda_src + self.lambda_tgt)
 
-        self.loss_D.backward()
+        return loss_D, loss_ADV_src, loss_ADV_tgt
 
-        self.optimizer_D.step()
-        return self.loss_ADV_src.item(), self.loss_ADV_tgt.item()
-
-    def __optimize_EF__(self):
-        self.optimizer_EF.zero_grad()
-        self.loss_E_pred = F.nll_loss(
+    def __loss_EF__(self):
+        loss_E_pred = F.nll_loss(
             flat(self.f_seq[self.domain_mask == 1]),
             flat(self.y_seq[self.domain_mask == 1]),
         )
 
-        self.f_adv, self.f_adv_softmax = self.netD(
+        f_adv, f_adv_softmax = self.netD(
             self.e_seq, return_softmax=True
         )
-        self.loss_ADV_src = F.nll_loss(
-            flat(self.f_adv[self.domain_mask == 1]),
+        loss_ADV_src = F.nll_loss(
+            flat(f_adv[self.domain_mask == 1]),
             flat(self.g_seq[self.domain_mask == 1]),
         )
         f_adv_tgt = torch.log(
-            1 - self.f_adv_softmax[self.domain_mask == 0] + 1e-10
+            1 - f_adv_softmax[self.domain_mask == 0] + 1e-10
         )
-        self.loss_ADV_tgt = F.nll_loss(
+        loss_ADV_tgt = F.nll_loss(
             flat(f_adv_tgt), flat(self.g_seq[self.domain_mask == 0])
         )
-        self.loss_E_adv = -(
-            self.loss_ADV_src * self.lambda_src
-            + self.loss_ADV_tgt * self.lambda_tgt
+        loss_E_adv = -(
+            loss_ADV_src * self.lambda_src
+            + loss_ADV_tgt * self.lambda_tgt
         ) / (self.lambda_src + self.lambda_tgt)
-        self.loss_E = self.loss_E_pred + self.opt.lambda_gan * self.loss_E_adv
+        loss_E = loss_E_pred + self.opt.lambda_gan * loss_E_adv
 
-        self.loss_E.backward()
-
-        self.optimizer_EF.step()
-
-        return self.loss_E_pred.item(), self.loss_E_adv.item()
+        return loss_E, loss_E_pred, loss_E_adv
 
 
 class GDA(BaseModel):
@@ -865,21 +830,8 @@ class GDA(BaseModel):
         self.f_seq = self.netF(self.e_seq)  # prediction
         self.d_seq = self.netD(self.e_seq)
 
-    # def __optimize__(self):
-    #     loss_value = dict()
-    #     # if not self.use_g_encode:
-    #     #     loss_value["G"] = self.__optimize_G__()
-    #     loss_value["G"], loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = self.__optimize_GDEF__()
-    #     return loss_value
-
-    def __optimize__(self):
-        loss_value = dict()
-        if not self.use_g_encode:
-            self.loss_G = self.__loss_G__()
-        
-        if self.opt.lambda_gan != 0:
-            self.loss_D = self.__loss_D__(self.d_seq)
-        
+    def __loss_EF__(self):
+        # we have already got loss D
         if self.opt.lambda_gan != 0:
             loss_E_gan = -self.loss_D
         else:
@@ -894,29 +846,11 @@ class GDA(BaseModel):
 
         loss_E = loss_E_gan * self.opt.lambda_gan + loss_E_pred
 
-        if not self.use_g_encode:
-            self.optimizer_G.zero_grad()
-        self.loss_G.backward(retain_graph=True)
-        self.optimizer_D.zero_grad()
-        self.loss_D.backward(retain_graph=True)
-        self.optimizer_EF.zero_grad()
-        loss_E.backward()
+        return loss_E, loss_E_pred, loss_E_gan
 
-        if not self.use_g_encode:
-            self.optimizer_G.step()
-        self.optimizer_D.step()
-        self.optimizer_EF.step()
-
-        if not self.use_g_encode:
-            loss_value["G"] = self.loss_G.item()
-        loss_value["D"], loss_value["E_pred"], loss_value["E_gan"] = \
-            self.loss_D.item(), loss_E_pred.item(), loss_E_gan.item()
-        return loss_value
-
-
-    def __loss_D__(self, d):
+    def __loss_D__(self):
         criterion = nn.BCEWithLogitsLoss()
-
+        d = self.d_seq
         # random pick subchain and optimize the D
         # balance coefficient is calculate by pos/neg ratio
         sub_graph = self.__sub_graph__(my_sample_v=self.opt.sample_v)
