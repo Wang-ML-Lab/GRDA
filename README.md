@@ -1,5 +1,5 @@
 # Graph-Relational Domain Adaptation
-This is the code for paper: "Graph-Relational Domain Adaptation" (ICLR 2022). We are still re-organizing the code for camera-ready version.
+This repo contains the code for our ICLR 2022 paper: "Graph-Relational Domain Adaptation". We are still re-organizing the code for the camera-ready version.
 
 ## Installation
     pip install -r requirements.txt
