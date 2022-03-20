@@ -57,7 +57,6 @@ dataloader = DataLoader(
     dataset=dataset, shuffle=True, batch_size=opt.batch_size
 )
 
-
 # train
 for epoch in range(opt.num_epoch):
     model.learn(epoch, dataloader)

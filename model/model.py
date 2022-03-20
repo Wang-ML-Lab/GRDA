@@ -255,7 +255,7 @@ class BaseModel(nn.Module):
 
         if not self.use_g_encode:
             self.optimizer_G.zero_grad()
-        self.loss_G.backward(retain_graph=True)
+            self.loss_G.backward(retain_graph=True)
         self.optimizer_D.zero_grad()
         self.loss_D.backward(retain_graph=True)
         self.optimizer_EF.zero_grad()
