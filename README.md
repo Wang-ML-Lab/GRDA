@@ -1,5 +1,5 @@
 # Graph-Relational Domain Adaptation
-This is the code for paper: "Graph-Relational Domain Adaptation" (ICLR 2022). We are still re-organizing the code for camera-ready version.
+This repo contains the code for our ICLR 2022 paper: "Graph-Relational Domain Adaptation". We are still re-organizing the code for the camera-ready version.
 
 ## Installation
     pip install -r requirements.txt
@@ -16,5 +16,5 @@ Find the config in "config" folder. Choose the config you need and Set "opt.use_
 ### Start visdom server on gpu machine
     python -m visdom.server -p 2000
 Now connect your computer with the gpu server and forward the port 2000 to your local computer. You can now go to:
-    http://localhost:xxx (Your local address)
+    http://localhost:2000 (Your local address)
 to see the visualization during training.
