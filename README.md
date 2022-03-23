@@ -1,5 +1,8 @@
-# Graph-Relational Domain Adaptation
-This repo contains the code for our ICLR 2022 paper: "Graph-Relational Domain Adaptation". We are still re-organizing the code for the camera-ready version.
+# Graph-Relational Domain Adaptation (GRDA)
+This repo contains the code for our ICLR 2022 paper: "[Graph-Relational Domain Adaptation](wanghao.in/paper/ICLR22_GRDA.pdf)". We are still re-organizing the code for the camera-ready version.
+
+## Beyond Domain Adaptation: Brief Introduction for GRDA
+Essentially GRDA goes beyond current (categorical) domain adaptation regime and proposes the first approach to **adapt across graph-relational domains**. We introduce a new notion, dubbed "**domain graph**", that to encode domain adjacency, e.g., a graph of states in the US with each state as a domain and each edge indicating adjacency. Theoretical analysis shows that *at equilibrium, GRDA recovers classic domain adaptation when the graph is a clique, and achieves non-trivial alignment for other types of graphs*. 
 
 ## Installation
     pip install -r requirements.txt
