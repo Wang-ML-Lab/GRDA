@@ -26,6 +26,12 @@ Now connect your computer with the gpu server and forward the port 2000 to your 
     http://localhost:2000 (Your local address)
 to see the visualization during training.
 
+## Theory (Informal)
+- Traditional method is equivalent to using our method with a fully-connect graph (clique).
+- D and E converges if and only if <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" />
+- The global optimal of the two-player game between E and D matches 3 player game E, D, F.
+
+
 ## Reference
 If you find our work useful in your research, please consider citing:
 ```
