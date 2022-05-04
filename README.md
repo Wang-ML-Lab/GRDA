@@ -8,6 +8,14 @@ Essentially GRDA goes beyond current (categorical) domain adaptation regime and 
 <img src="fig/GRDA-domain-graph-US.png" alt="" data-canonical-src="fig/GRDA-domain-graph-US.png" width="95%"/>
 </p>
 
+## Sample Results
+If we use domains 0, 3, 4, 8, 12, 14 as source domains (left of the following figure) and the rest as target domains, below are some sample results from previous domain adaptation methods and GRDA, where GRDA successfully generalizes across different domains in the graph.
+
+<p align="center">
+<img src="fig/GRDA-DG-15-results.png" alt="" data-canonical-src="fig/GRDA-DG-15-results.png" width="95%"/>
+</p>
+
+
 ## Installation
     pip install -r requirements.txt
 
