@@ -27,16 +27,16 @@ We provide a simple yet effective learning framework with **theoretical guarante
 ## Installation
     pip install -r requirements.txt
 
-## How to train
+## How to Train GRDA
     python main.py
 
 ## Visualization
 We use visdom to visualize. We assume the code is run on a remote gpu machine.
 
-### Change config
+### Change Configurations
 Find the config in "config" folder. Choose the config you need and Set "opt.use_visdom" to "True".
 
-### Start visdom server on gpu machine
+### Start a Visdom Server on Your Machine
     python -m visdom.server -p 2000
 Now connect your computer with the gpu server and forward the port 2000 to your local computer. You can now go to:
     http://localhost:2000 (Your local address)
