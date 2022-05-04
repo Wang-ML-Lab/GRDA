@@ -9,10 +9,10 @@ Essentially GRDA goes beyond current (categorical) domain adaptation regime and 
 </p>
 
 ## Sample Results
-If we use domains 0, 3, 4, 8, 12, 14 as source domains (left of the following figure) and the rest as target domains, below are some sample results from previous domain adaptation methods and GRDA, where GRDA successfully generalizes across different domains in the graph.
+In a DA problem with 15 domains connected by a domain graph (see the figure below), if we use domains 0, 3, 4, 8, 12, 14 as source domains (left of the following figure) and the rest as target domains, below are some sample results from previous domain adaptation methods and GRDA (right of the figure), where GRDA successfully generalizes across different domains in the graph.
 
 <p align="center">
-<img src="fig/GRDA-DG-15-results.png" alt="" data-canonical-src="fig/GRDA-DG-15-results.png" width="95%"/>
+<img src="fig/GRDA-DG-15-results.png" alt="" data-canonical-src="fig/GRDA-DG-15-results.png" width="91%"/>
 </p>
 
 
