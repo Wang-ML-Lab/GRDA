@@ -50,8 +50,8 @@ to see the visualization during training.
 <!-- <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" /> -->
 
 ## Reference
-If you find our work useful in your research, please consider citing:
-```
+[Graph-Relational Domain Adaptation](http://wanghao.in/paper/ICLR22_GRDA.pdf)
+```bib
 @inproceedings{GRDA,
   title={Graph-Relational Domain Adaptation},
   author={Xu, Zihao and He, Hao and Lee, Guang-He and Wang, Yuyang and Wang, Hao},
