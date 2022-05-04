@@ -28,7 +28,7 @@ to see the visualization during training.
 
 ## Theory (Informal)
 - Traditional DA is equivalent to using our GRDA with a fully-connected graph (i.e., a clique).
-- D and E converge if and only if <img src="https://render.githubusercontent.com/render/math?math=E_{i,j}[A_{i,j}|e_i,e_j] = E_{i,j}[A_{i,j}]">.
+- D and E converge if and only if ![\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}](https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}) .
 - The global optimum of the two-player game between E and D matches the three-player game between E, D, and F.
 
 <!-- <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" /> -->
