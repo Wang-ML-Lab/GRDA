@@ -24,6 +24,14 @@ We provide a simple yet effective learning framework with **theoretical guarante
 </p>
 
 
+## Theory (Informal)
+- Traditional DA is equivalent to using our GRDA with a fully-connected graph (i.e., a clique).
+- D and E converge if and only if <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" />.
+- The global optimum of the two-player game between E and D matches the three-player game between E, D, and F.
+
+<!-- <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" /> -->
+
+
 ## Installation
     pip install -r requirements.txt
 
@@ -42,12 +50,6 @@ Now connect your computer with the gpu server and forward the port 2000 to your 
     http://localhost:2000 (Your local address)
 to see the visualization during training.
 
-## Theory (Informal)
-- Traditional DA is equivalent to using our GRDA with a fully-connected graph (i.e., a clique).
-- D and E converge if and only if <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" />.
-- The global optimum of the two-player game between E and D matches the three-player game between E, D, and F.
-
-<!-- <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" /> -->
 
 ## Reference
 [Graph-Relational Domain Adaptation](http://wanghao.in/paper/ICLR22_GRDA.pdf)
