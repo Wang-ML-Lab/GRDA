@@ -15,6 +15,14 @@ In a DA problem with 15 domains connected by a domain graph (see the figure belo
 <img src="fig/GRDA-DG-15-results.png" alt="" data-canonical-src="fig/GRDA-DG-15-results.png" width="91%"/>
 </p>
 
+## Method Overview
+We provide a simple yet effective learning framework with **theoretical guarantees** (see the [Theory section](https://github.com/Wang-ML-Lab/GRDA/edit/main/README.md#theory-informal) at the end of this README). Below is a quick comparison between previous domain adaptation methods and GRDA (differences marked in red). 
+* Previous domain adaptation methods use a discriminator is classifify different domains (as categorical values), while GRDA's discriminator directly reconstructs the domain graph (as a adjacency matrix).
+* Previous domain adaptation methods' encoders ignore domain IDs, while GRDA takes the domain IDs with the domain graph as input.
+<p align="center">
+<img src="fig/blog-method-DA-vs-GRDA.png" alt="" data-canonical-src="fig/blog-method-DA-vs-GRDA.png" width="95%"/>
+</p>
+
 
 ## Installation
     pip install -r requirements.txt
