@@ -25,7 +25,7 @@ We provide a simple yet effective learning framework with **theoretical guarante
 
 ## Theory (Informal)
 - Traditional DA is equivalent to using our GRDA with a fully-connected graph (i.e., a clique).
-- D and E converge if and only if E<sub>i,j</sub>[A<sub>i,j</sub>|e<sub>i</sub>, e<sub>i</sub>] = E<sub>i,j</sub>[A<sub>i,j</sub>].
+- D and E converge if and only if 𝔼<sub>i\~p(u|e),j\~p(u|e')</sub>[A<sub>i,j</sub>|e, e'] = 𝔼<sub>i,j</sub>[A<sub>i,j</sub>].
 - The global optimum of the two-player game between E and D matches the three-player game between E, D, and F.
 
 <!-- <img src="https://latex.codecogs.com/svg.image?E_{i,j}[A_{i,j}|e_i,e_j]&space;=&space;E_{i,j}[A_{i,j}]" /> -->
