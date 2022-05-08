@@ -53,6 +53,12 @@ Now connect your computer with the gpu server and forward the port 2000 to your 
     http://localhost:2000 (Your local address)
 to see the visualization during training.
 
+## Also Check Out Relevant Work
+**Continuously Indexed Domain Adaptation**<br>
+Hao Wang*, Hao He*, Dina Katabi<br>
+*Thirty-Seventh International Conference on Machine Learning (ICML), 2020*<br>
+[[Paper](http://wanghao.in/paper/ICML20_CIDA.pdf)] [[Code](https://github.com/hehaodele/CIDA)] [[Talk](https://www.youtube.com/watch?v=KtZPSCD-WhQ)] [[Blog](http://wanghao.in/CIDA-Blog/CIDA.html)] [[Slides](http://wanghao.in/slides/CIDA_slides.pptx)]
+
 ## Reference
 [Graph-Relational Domain Adaptation](http://wanghao.in/paper/ICLR22_GRDA.pdf)
 ```bib
