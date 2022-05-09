@@ -12,13 +12,18 @@ def write_pickle(data, name):
         pickle.dump(data, f)
 
 
-read_file = "499_pred_GDA_new.pkl"
+# read_file = "499_pred_GDA_new.pkl"
+read_file = "499_pred.pkl"
+num_domain = 60
 
 info = read_pickle(read_file)
 z = info["z"]
+
+# print(z)
+
 g_encode = dict()
-for i in range(15):
+for i in range(num_domain):
     g_encode[str(i)] = z[i]
 
-write_pickle(g_encode, "g_encode.pkl")
+write_pickle(g_encode, "g_encode_60.pkl")
 print("success!")

@@ -37,13 +37,13 @@ opt.cond_disc = (
     False  # whether use conditional discriminator or not (for CDANN)
 )
 print("model: {}".format(opt.model))
-opt.use_visdom = False
+opt.use_visdom = True
 opt.visdom_port = 2000
 
 # we do not prepare the pretrain g encode for random-60 dataset
-opt.use_g_encode = False
-# if opt.use_g_encode:
-#     opt.g_encode = read_pickle("derive_g_encode/g_encode.pkl")
+opt.use_g_encode = True
+if opt.use_g_encode:
+    opt.g_encode = read_pickle("derive_g_encode/g_encode_60.pkl")
 
 opt.device = "cuda"
 opt.seed = 233  # 1# 101 # 1 # 233 # 1
@@ -55,10 +55,10 @@ opt.lambda_src = 0.5
 opt.lambda_tgt = 0.5
 
 opt.num_epoch = 500
-opt.batch_size = 10
+opt.batch_size = 10 # 10
 opt.lr_d = 1e-5  # 3e-5 # 1e-4 # 2.9 * 1e-5 #3e-5  # 1e-4
 opt.lr_e = 1e-5  # 3e-5 # 1e-4 # 2.9 * 1e-5
-opt.lr_g = 3e-4
+opt.lr_g = 1e-3  # 3e-4
 opt.gamma = 100
 opt.beta1 = 0.9
 opt.weight_decay = 5e-4
@@ -78,7 +78,7 @@ opt.sample_v = 30
 # # sample how many vertices for training G
 opt.sample_v_g = 60
 
-opt.test_interval = 20
+opt.test_interval = 20 # 20
 opt.save_interval = 100
 # drop out rate
 opt.p = 0.2

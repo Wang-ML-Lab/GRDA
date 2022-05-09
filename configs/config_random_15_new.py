@@ -42,14 +42,12 @@ opt.visdom_port = 2000
 
 opt.use_g_encode = False # False  # True
 if opt.use_g_encode:
-    opt.g_encode = read_pickle("derive_g_encode/g_encode.pkl")
-
+    opt.g_encode = read_pickle("derive_g_encode/g_encode_15.pkl")
 
 opt.device = "cuda"
 opt.seed = 233  # 1# 101 # 1 # 233 # 1
 
-opt.lambda_gan = 0.5  # 0.5 # 0.3125 # 0.5 # 0.5
-
+opt.lambda_gan = 1  # 0.5 
 # for MDD use only
 opt.lambda_src = 0.5
 opt.lambda_tgt = 0.5
@@ -57,8 +55,8 @@ opt.lambda_tgt = 0.5
 
 opt.num_epoch = 500
 opt.batch_size = 10
-opt.lr_d = 3e-5  # 3e-5 # 1e-4 # 2.9 * 1e-5 #3e-5  # 1e-4
-opt.lr_e = 3e-5  # 3e-5 # 1e-4 # 2.9 * 1e-5
+opt.lr_d = 1e-4  # 3e-5 # 1e-4 
+opt.lr_e = 1e-4  # 3e-5 # 1e-4 
 opt.lr_g = 1e-4
 opt.gamma = 100
 opt.beta1 = 0.9
