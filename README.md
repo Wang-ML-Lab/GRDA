@@ -31,14 +31,10 @@ We provide a simple yet effective learning framework with **theoretical guarante
 ## Quantitative Result
 #### Toy Dataset: DG-15 and DG-60
 <p align="center">
-<img src="fig/blog-table-mnist.png" alt="" data-canonical-src="fig/blog-table-mnist.png" width="95%"/>
+<img src="fig/dg_15_60_quantitive_result.jpg" alt="" data-canonical-src="fig/dg_15_60_quantitive_result.jpg" width="95%"/>
 </p>
 
 #### TPT-48
-In the intra-dataset setting, we consider both **domain extrapolation** and **domain interpolation** (see the figure below).
-<p align="center">
-<img src="fig/dg_15_60_quantitive_result.jpg" alt="" data-canonical-src="fig/dg_15_60_quantitive_result.jpg" width="95%"/>
-</p>
 <p align="center">
 <img src="fig/tpt_48_quantitive_result.jpg" alt="" data-canonical-src="fig/tpt_48_quantitive_result.jpg" width="95%"/>
 </p>
