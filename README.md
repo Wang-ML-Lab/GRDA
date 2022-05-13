@@ -28,6 +28,26 @@ We provide a simple yet effective learning framework with **theoretical guarante
 <img src="fig/blog-method-DA-vs-GRDA.png" alt="" data-canonical-src="fig/blog-method-DA-vs-GRDA.png" width="95%"/>
 </p>
 
+## Quantitative Result
+#### Toy Dataset: DG-15 and DG-60
+<p align="center">
+<img src="fig/blog-table-mnist.png" alt="" data-canonical-src="fig/blog-table-mnist.png" width="95%"/>
+</p>
+
+#### TPT-48
+In the intra-dataset setting, we consider both **domain extrapolation** and **domain interpolation** (see the figure below).
+<p align="center">
+<img src="fig/dg_15_60_quantitive_result.jpg" alt="" data-canonical-src="fig/dg_15_60_quantitive_result.jpg" width="95%"/>
+</p>
+<p align="center">
+<img src="fig/tpt_48_quantitive_result.jpg" alt="" data-canonical-src="fig/tpt_48_quantitive_result.jpg" width="95%"/>
+</p>
+
+#### CompCars
+<p align="center">
+<img src="fig/compcar_quantitive_result.jpg" alt="" data-canonical-src="fig/compcar_quantitive_result.jpg" width="95%"/>
+</p>
+
 ## Theory (Informal)
 - Traditional DA is equivalent to using our GRDA with a fully-connected graph (i.e., a clique).
 - D and E converge if and only if 𝔼<sub>i\~p(u|e),j\~p(u|e')</sub>[A<sub>i,j</sub>|e, e'] = 𝔼<sub>i,j</sub>[A<sub>i,j</sub>].
