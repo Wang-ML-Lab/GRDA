@@ -31,7 +31,7 @@ We provide a simple yet effective learning framework with **theoretical guarante
 ## Quantitative Result
 #### Toy Dataset: DG-15 and DG-60
 <p align="center">
-<img src="fig/dg_15_60_quantitive_result.jpg" alt="" data-canonical-src="fig/dg_15_60_quantitive_result.jpg" width="95%"/>
+<img src="fig/dg_15_60_quantitive_result.jpg" alt="" data-canonical-src="fig/dg_15_60_quantitive_result.jpg" width="75%"/>
 </p>
 
 #### TPT-48
@@ -41,7 +41,7 @@ We provide a simple yet effective learning framework with **theoretical guarante
 
 #### CompCars
 <p align="center">
-<img src="fig/compcar_quantitive_result.jpg" alt="" data-canonical-src="fig/compcar_quantitive_result.jpg" width="95%"/>
+<img src="fig/compcar_quantitive_result.jpg" alt="" data-canonical-src="fig/compcar_quantitive_result.jpg" width="80%"/>
 </p>
 
 ## Theory (Informal)
