@@ -149,7 +149,7 @@ class BaseModel(nn.Module):
 
         z_seq = to_np(self.z_seq)
         z_seq_all = z_seq[
-            0 : self.batch_size * self.test_dmn_num : self.batch_size, :
+            0 : self.tmp_batch_size * self.test_dmn_num : self.tmp_batch_size, :
         ]
 
         d_all = dict()
